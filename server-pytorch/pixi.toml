@@ -38,6 +38,8 @@ fastapi = ">=0.115.12,<0.116"
 
 # for remote terminal life
 lazygit = ">=0.65.1,<0.66"
+sam2 = ">=1.0.0,<2"
+huggingface_hub = ">=1.32.0,<2"
 
 [pypi-dependencies]
 cellpose = "==4.0.4"
