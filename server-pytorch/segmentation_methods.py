@@ -3,9 +3,7 @@ import sys
 
 import utils
 
-sys.path.append("../segmentation-wrappers/cellpose")
-sys.path.append("../segmentation-wrappers/instanseg")
-sys.path.append("../segmentation-wrappers/MaskRCNN")
+sys.path.append("../segmentation-wrappers")
 import cellpose_wrapper as C
 import instanseg_wrapper as I
 import maskrcnn_wrapper as M

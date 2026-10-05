@@ -21,9 +21,10 @@ def list_models_files(models_root_folder: str, env_code: str):
 
     for r in res_:
         if r.find('.model') > 0 \
-                and os.path.isfile(os.path.join(models_root_folder,r)):
+        and os.path.isfile(os.path.join(models_root_folder,r)):
             _,_,env = filename_to_atoms(r)
-            results.append(r) if env == env_code
+            if env == env_code:
+                results.append(r)
 
     return results
 

@@ -9,10 +9,10 @@ import time
 
 import sys
 sys.path.append("../../images_loaders")
-from images_manipulators import normalize_img_auto_range_to_0_1
+import utils
 
 
-methods_folder = '../MODELS_ORIGINAL'
+methods_folder = '../server-MODELS'
 methods = NETS.SegmentationMethods(methods_folder)
 app = FastAPI()
 
@@ -83,7 +83,7 @@ def segment_2d_tiff(tiff_image: Annotated[bytes, Body(media_type='application/oc
         #print(img, img.shape, img.dtype)
 
         if do_normalization:
-            img = normalize_img_auto_range_to_0_1(img)
+            img = utils.basic_inplace_normalization(img)
 
         seg_method = methods.get_segmentation_fun(method_name)
         if seg_method is None:
@@ -159,7 +159,7 @@ def segment_2d_stream(stream_image: Annotated[bytes, Body(media_type='applicatio
         #TIFF.imwrite("incoming.tif",img)
 
         if do_normalization:
-            img = normalize_img_auto_range_to_0_1(img)
+            img = utils.basic_inplace_normalization(img)
 
         seg_method = methods.get_segmentation_fun(method_name)
         if seg_method is None:
