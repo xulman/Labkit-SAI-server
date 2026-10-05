@@ -1,0 +1,33 @@
+[workspace]
+name = "server-tensorflow"
+description = "Python environments for the Labkit-SAI project, segmentation server"
+authors = ["Vladimír Ulman <vladimir.ulman@vsb.cz>"]
+repository = "https://github.com/xulman/Labkit-SAI-server"
+
+license = "BSD-2-Clause"
+license-file = "../LICENSE"
+readme = "../README.md"
+version = "0.2.0"
+
+platforms = [{ name = "linux-64-cuda", platform = "linux-64", cuda = "12.0" }]
+channels = ["conda-forge"]
+requires-pixi = ">=0.81"
+
+[dependencies]
+scikit-image = ">=0.24.0,<0.25"
+scikit-learn = ">=1.5.2,<2"
+tifffile = ">=2024.6.18,<2025"
+imagecodecs = ">=2024.9.22,<2025"
+tqdm = ">=4.67.1,<5"
+
+# for full StarDist
+tensorflow = ">=2.0"
+
+# for server
+fastapi = ">=0.115.12,<0.116"
+
+# for remote terminal life
+lazygit = ">=0.65.1,<0.66"
+
+[pypi-dependencies]
+stardist = ">=0.9.1"
