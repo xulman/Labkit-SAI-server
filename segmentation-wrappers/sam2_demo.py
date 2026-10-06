@@ -62,6 +62,7 @@ class Sam2BoxSegmenter:
         if x1 <= x0 or y1 <= y0:
             raise ValueError("degenerate box after clipping to the image")
 
+        print("sam2: prompt box:",[x0, y0, x1, y1])
         box = np.array([x0, y0, x1, y1], dtype=np.float32)
         with torch.inference_mode(), self._ctx():
             masks, scores, logits = self.predictor.predict(box=box, multimask_output=False)
