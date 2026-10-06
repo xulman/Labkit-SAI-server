@@ -33,12 +33,12 @@ class Sam2BoxSegmenter:
 
     # -- helpers -------------------------------------------------------------
     def _ctx(self):
-        if "cuda" in device.type:
+        if device.type == "cuda":
             return torch.autocast("cuda", dtype=torch.bfloat16)
         return contextlib.nullcontext()
 
     # -- entry point 1 -------------------------------------------------------
-    def set_image(self, img2d: np.ndarray, intensity_range=None) -> None:
+    def set_image(self, img2d: np.ndarray, intensity_range=None):
         """Encode the image. Call once per image; all boxes then reuse the embedding."""
         rgb = to_rgb_uint8(img2d, intensity_range)
         with torch.inference_mode(), self._ctx():
@@ -47,7 +47,7 @@ class Sam2BoxSegmenter:
         return self
 
     # -- entry point 2 -------------------------------------------------------
-    def segment_box(self, x_min: float, y_min: float, x_max: float, y_max: float, res_confidence_threshold: float = 0.5) -> np.ndarray:
+    def segment_box(self, x_min: float, y_min: float, x_max: float, y_max: float) -> np.ndarray:
         """Segment the single object inside the box.
 
         Pixel coordinates, x = column, y = row (i.e. img[y, x]).
@@ -66,9 +66,6 @@ class Sam2BoxSegmenter:
         with torch.inference_mode(), self._ctx():
             masks, scores, logits = self.predictor.predict(box=box, multimask_output=False)
 
-        # predict() returns float 0/1 masks
-        # this turns <res_confidence_threshold to 0.0, else to 1.0
-        # (floor() is perhaps not needed and would happen as part of astype())
-        mask = np.floor(masks[0] + (1.0-res_confidence_threshold)).astype('uint16')
-        return mask
+        # predict() returns float 0.0 or 1.0 masks
+        return (1.0-masks[0]).astype('uint16')
 
