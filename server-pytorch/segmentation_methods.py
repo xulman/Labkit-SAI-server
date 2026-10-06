@@ -87,7 +87,7 @@ class SegmentationMethods:
 
         elif wanted_net == "sam2":
             print(f"LOADING SAM2 model: {wanted_file}")
-            model = S.Sam2BoxSegmenter()
+            model = S.Sam2BoxSegmenter(f"facebook/sam2.1-hiera-{wanted_model[9:]}")
             self.last_used_fun = lambda i : model.set_image(i).segment_box(20,20, 100,100)
             self.last_used_method = wanted_method
 
