@@ -7,6 +7,7 @@ sys.path.append("../segmentation-wrappers")
 import cellpose_wrapper as C
 import instanseg_wrapper as I
 import maskrcnn_wrapper as M
+import sam2_demo as S
 
 
 class SegmentationMethods:
@@ -82,6 +83,12 @@ class SegmentationMethods:
         elif wanted_net == "fakenet":
             print(f"LOADING FAKENET square model...")
             self.last_used_fun = utils.set_one_everywhere
+            self.last_used_method = wanted_method
+
+        elif wanted_net == "sam2":
+            print(f"LOADING SAM2 model: {wanted_file}")
+            model = S.Sam2BoxSegmenter(f"facebook/sam2.1-hiera-{wanted_model[9:]}")
+            self.last_used_fun = lambda i : model.set_image(i).segment_box(1,1, i.shape[1]-2,i.shape[0]-2)
             self.last_used_method = wanted_method
 
         else:
