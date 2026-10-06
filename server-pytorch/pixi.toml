@@ -40,6 +40,7 @@ fastapi = ">=0.115.12,<0.116"
 lazygit = ">=0.65.1,<0.66"
 sam2 = ">=1.0.0,<2"
 huggingface_hub = ">=1.32.0,<2"
+requests = ">=2.34.2,<3"
 
 [pypi-dependencies]
 cellpose = "==4.0.4"
