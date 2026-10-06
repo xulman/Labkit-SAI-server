@@ -7,7 +7,7 @@ sys.path.append("../segmentation-wrappers")
 import cellpose_wrapper as C
 import instanseg_wrapper as I
 import maskrcnn_wrapper as M
-import sam2_wrapper as S
+import sam2_demo as S
 
 
 class SegmentationMethods:
@@ -87,8 +87,8 @@ class SegmentationMethods:
 
         elif wanted_net == "sam2":
             print(f"LOADING SAM2 model: {wanted_file}")
-            model = S.create_official_model()
-            self.last_used_fun = lambda i : S.set_image_and_segment(model,i,20,20, 100,100).astype('uint16')
+            model = S.Sam2BoxSegmenter()
+            self.last_used_fun = lambda i : model.set_image(i).segment_box(20,20, 100,100)
             self.last_used_method = wanted_method
 
         else:
