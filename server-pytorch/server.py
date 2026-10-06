@@ -179,6 +179,20 @@ def segment_2d_stream(stream_image: Annotated[bytes, Body(media_type='applicatio
     return Response(content=ret_img.tobytes(), media_type='application/octet-stream' )
 
 
+@app.post("/segmentation_2D/on_posted_stream_of/{width}/{height}/use/{method_name}/prompt_box/{x_min}/{y_min}/{x_max}/{y_max}", response_class=OctetStreamResponse)
+async def segment_2d_plain_stream_with_prompt(stream_image: Annotated[bytes, Body(media_type='application/octet-stream')],
+                                              width: int, height: int, method_name: str,
+                                              x_min, y_min, x_max, y_max):
+    return segment_2d_stream(stream_image, width, height, do_normalization = False, method_name = method_name, prompt = (x_min, y_min, x_max, y_max))
+
+
+@app.post("/segmentation_2D/on_posted_stream_of/{width}/{height}/normalize_it_then_use/{method_name}/prompt_box/{x_min}/{y_min}/{x_max}/{y_max}", response_class=OctetStreamResponse)
+async def segment_2d_already_normalized_stream_with_prompt(stream_image: Annotated[bytes, Body(media_type='application/octet-stream')],
+                                                           width: int, height: int, method_name: str,
+                                                           x_min, y_min, x_max, y_max):
+    return segment_2d_stream(stream_image, width, height, do_normalization = True, method_name = method_name, prompt = (x_min, y_min, x_max, y_max))
+
+
 @app.post("/connection_test/data_transfer_times", response_class=OctetStreamResponse)
 async def test_transfer_time(stream_of_data: Annotated[bytes, Body(media_type='application/octet-stream')]):
     '''
