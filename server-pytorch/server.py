@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, Body, Response
-from typing import Annotated
+from fastapi import FastAPI, HTTPException, Body, Response, Depends, Header
+from typing import Annotated, Optional
 from pathlib import Path
 import secrets
 
@@ -24,9 +24,24 @@ if not API_TOKEN:
     sys.exit(f"Token file is empty: {SECRET_FILE}")
 
 
+async def verify_token(x_api_token: Annotated[Optional[str], Header()] = None):
+    # constant-time comparison, avoids timing side channel
+    if x_api_token is None or not secrets.compare_digest(x_api_token, API_TOKEN):
+        # 404 instead of 401/403 => unauthenticated clients learn nothing
+        raise HTTPException(status_code=404, detail="Not Found")
+##
+## Requires curl commands with:
+##      -H "X-API-Token: $(cat secret.txt)"
+##
+## (note the subshell `cat` so that the secret itself never appears in bash history)
+
+
 methods_folder = '../server-MODELS'
 methods = NETS.SegmentationMethods(methods_folder)
-app = FastAPI()
+
+app = FastAPI(
+    dependencies=[Depends(verify_token)],  # applies to every route
+)
 
 @app.get("/")
 async def handle_root():
