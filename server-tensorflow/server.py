@@ -1,5 +1,7 @@
-from fastapi import FastAPI, HTTPException, Body, Response
-from typing import Annotated
+from fastapi import FastAPI, HTTPException, Body, Response, Depends, Header
+from typing import Annotated, Optional
+from pathlib import Path
+import secrets
 
 import segmentation_methods as NETS
 import numpy as np
@@ -12,13 +14,42 @@ sys.path.append("../../images_loaders")
 import utils
 
 
+# --- token, read once at startup from secret.txt next to this script ---
+SECRET_FILE = Path(__file__).resolve().parent / "secret.txt"
+try:
+    API_TOKEN = SECRET_FILE.read_text(encoding="utf-8").strip()
+except FileNotFoundError:
+    sys.exit(f"Missing token file: {SECRET_FILE}")
+if not API_TOKEN:
+    sys.exit(f"Token file is empty: {SECRET_FILE}")
+
+
+async def verify_token(x_api_token: Annotated[Optional[str], Header()] = None):
+    # constant-time comparison, avoids timing side channel
+    if x_api_token is None or not secrets.compare_digest(x_api_token, API_TOKEN):
+        # 404 instead of 401/403 => unauthenticated clients learn nothing
+        print("refusing some connection!")
+        raise HTTPException(status_code=404, detail="Not Found")
+##
+## Requires curl commands with:
+##      -H "X-API-Token: $(cat secret.txt)"
+##
+## (note the subshell `cat` so that the secret itself never appears in bash history)
+
+
 methods_folder = '../server-MODELS'
 methods = NETS.SegmentationMethods(methods_folder)
-app = FastAPI()
+
+app = FastAPI(
+    docs_url=None,       # no /docs (Swagger UI)
+    redoc_url=None,      # no /redoc
+    openapi_url=None,    # no /openapi.json -- the actual discovery source
+    dependencies=[Depends(verify_token)],  # applies to every route
+)
 
 @app.get("/")
 async def handle_root():
-    return {"Welcome message": "Hello World. This is a small server of 2D cell segmentation models.", "For help": "Open: 'URL/docs' in a web browser."}
+    return {"Welcome message": "Hello World. This is a small server of 2D cell segmentation models."}
 
 
 @app.get("/segmentation_2D/list_available_methods")
