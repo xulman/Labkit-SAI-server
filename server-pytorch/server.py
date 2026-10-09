@@ -40,12 +40,15 @@ methods_folder = '../server-MODELS'
 methods = NETS.SegmentationMethods(methods_folder)
 
 app = FastAPI(
+    docs_url=None,       # no /docs (Swagger UI)
+    redoc_url=None,      # no /redoc
+    openapi_url=None,    # no /openapi.json -- the actual discovery source
     dependencies=[Depends(verify_token)],  # applies to every route
 )
 
 @app.get("/")
 async def handle_root():
-    return {"Welcome message": "Hello World. This is a small server of 2D cell segmentation models.", "For help": "Open: 'URL/docs' in a web browser."}
+    return {"Welcome message": "Hello World. This is a small server of 2D cell segmentation models."}
 
 
 @app.get("/segmentation_2D/list_available_methods")
