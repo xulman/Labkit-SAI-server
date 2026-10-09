@@ -20,3 +20,6 @@ venv.bak/
 *.model
 *.model.pt
 *.pth
+
+# API access token
+secret.txt
