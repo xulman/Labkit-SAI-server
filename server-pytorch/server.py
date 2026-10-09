@@ -28,6 +28,7 @@ async def verify_token(x_api_token: Annotated[Optional[str], Header()] = None):
     # constant-time comparison, avoids timing side channel
     if x_api_token is None or not secrets.compare_digest(x_api_token, API_TOKEN):
         # 404 instead of 401/403 => unauthenticated clients learn nothing
+        print("refusing some connection!")
         raise HTTPException(status_code=404, detail="Not Found")
 ##
 ## Requires curl commands with:
