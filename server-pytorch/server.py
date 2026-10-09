@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, Body, Response
 from typing import Annotated
+from pathlib import Path
+import secrets
 
 import segmentation_methods as NETS
 import numpy as np
@@ -10,6 +12,16 @@ import time
 import sys
 sys.path.append("../../images_loaders")
 import utils
+
+
+# --- token, read once at startup from secret.txt next to this script ---
+SECRET_FILE = Path(__file__).resolve().parent / "secret.txt"
+try:
+    API_TOKEN = SECRET_FILE.read_text(encoding="utf-8").strip()
+except FileNotFoundError:
+    sys.exit(f"Missing token file: {SECRET_FILE}")
+if not API_TOKEN:
+    sys.exit(f"Token file is empty: {SECRET_FILE}")
 
 
 methods_folder = '../server-MODELS'
