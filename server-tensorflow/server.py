@@ -175,7 +175,7 @@ async def segment_2d_plain_stream(stream_image: Annotated[bytes, Body(media_type
     return segment_2d_stream(stream_image, width, height, do_normalization = True, method_name = method_name)
 
 
-def segment_2d_stream(stream_image: Annotated[bytes, Body(media_type='application/octet-stream')], width: int, height: int, do_normalization: bool, method_name: str):
+def segment_2d_stream(stream_image: Annotated[bytes, Body(media_type='application/octet-stream')], width: int, height: int, do_normalization: bool, method_name: str, prompt = None):
     time_start = time.time()
 
     # check if the requested method is known?
@@ -196,7 +196,7 @@ def segment_2d_stream(stream_image: Annotated[bytes, Body(media_type='applicatio
         if seg_method is None:
             raise HTTPException(status_code=400, detail=f"METHOD ERROR: >>{method_name}<< is not supported in the encryption module")
         #TIFF.imwrite("seg-in.tif",img)
-        ret_img = seg_method(img)
+        ret_img = seg_method(img, prompt)
         #TIFF.imwrite("seg-out.tif",ret_img)
         #print(ret_img, ret_img.shape, ret_img.dtype)
         print(f"Output stream size is {len(ret_img.tobytes())} bytes.")
@@ -208,6 +208,20 @@ def segment_2d_stream(stream_image: Annotated[bytes, Body(media_type='applicatio
     print(f"Time needed: {(time_stop - time_start):0.2f} seconds")
 
     return Response(content=ret_img.tobytes(), media_type='application/octet-stream' )
+
+
+@app.post("/segmentation_2D/on_posted_stream_of/{width}/{height}/use/{method_name}/prompt_box/{x_min}/{y_min}/{x_max}/{y_max}", response_class=OctetStreamResponse)
+async def segment_2d_plain_stream_with_prompt(stream_image: Annotated[bytes, Body(media_type='application/octet-stream')],
+                                              width: int, height: int, method_name: str,
+                                              x_min, y_min, x_max, y_max):
+    return segment_2d_stream(stream_image, width, height, do_normalization = False, method_name = method_name, prompt = (x_min, y_min, x_max, y_max))
+
+
+@app.post("/segmentation_2D/on_posted_stream_of/{width}/{height}/normalize_it_then_use/{method_name}/prompt_box/{x_min}/{y_min}/{x_max}/{y_max}", response_class=OctetStreamResponse)
+async def segment_2d_already_normalized_stream_with_prompt(stream_image: Annotated[bytes, Body(media_type='application/octet-stream')],
+                                                           width: int, height: int, method_name: str,
+                                                           x_min, y_min, x_max, y_max):
+    return segment_2d_stream(stream_image, width, height, do_normalization = True, method_name = method_name, prompt = (x_min, y_min, x_max, y_max))
 
 
 @app.post("/connection_test/data_transfer_times", response_class=OctetStreamResponse)

@@ -59,12 +59,12 @@ class SegmentationMethods:
             print(f"LOADING STARDIST model: {wanted_file}")
             model = S.from_pretrained('2D_versatile_fluo') if wanted_model == "original" else S.from_pretrained(wanted_file)
             #self.last_used_fun = lambda i : model.predict_instances(utils.basic_inplace_normalization(i))[0]
-            self.last_used_fun = lambda i : model.predict_instances(i, normalizer=sd_norm_fun)[0].astype('uint16')
+            self.last_used_fun = lambda i,p : model.predict_instances(i, normalizer=sd_norm_fun)[0].astype('uint16')
             self.last_used_method = wanted_method
 
         elif wanted_net == "fakenet":
             print(f"LOADING FAKENET square model...")
-            self.last_used_fun = utils.set_one_everywhere
+            self.last_used_fun = lambda i,p : utils.set_one_everywhere(i)
             self.last_used_method = wanted_method
 
         else:
