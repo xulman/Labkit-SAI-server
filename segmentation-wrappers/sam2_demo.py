@@ -68,5 +68,5 @@ class Sam2BoxSegmenter:
             masks, scores, logits = self.predictor.predict(box=box, multimask_output=False)
 
         # predict() returns float 0.0 or 1.0 masks
-        return (1.0-masks[0]).astype('uint16')
+        return masks[0].astype('uint16')
 
