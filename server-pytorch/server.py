@@ -54,7 +54,10 @@ app = FastAPI(
 
 @app.get("/")
 async def handle_root():
-    return {"Welcome message": "Hello World. This is a small server of 2D cell segmentation models."}
+    ret_dict = {"Welcome message": "Hello World. This is a small server of 2D cell segmentation models."}
+    if SHOW_DOCS:
+        ret_dict["For help"] = "Open: 'URL/docs' in a web browser."
+    return ret_dict
 
 
 @app.get("/segmentation_2D/list_available_methods")
@@ -84,6 +87,8 @@ async def segment_2d_already_normalized_tiff(tiff_image: Annotated[bytes, Body(m
     ```
     curl -X POST --data-binary @test.tif -H "Content-Type: application/octet-stream"  http://127.0.0.1:8000/segmentation_2D/on_posted_tiff/use/cellpose --output res_image_stream.tif
     ```
+
+    If the server is configured to use a `SECRET-KEY` in its `server.cfg`, add the following parameter to the `curl` commands: `-H "X-API-Token: put_the_key_verbatim_here"`
     '''
     return segment_2d_tiff(tiff_image, do_normalization = False, method_name = method_name)
 
@@ -103,6 +108,8 @@ async def segment_2d_plain_tiff(tiff_image: Annotated[bytes, Body(media_type='ap
     ```
     curl -X POST --data-binary @test.tif -H "Content-Type: application/octet-stream"  http://127.0.0.1:8000/segmentation_2D/on_posted_tiff/normalize_it_then_use/cellpose --output res_image_stream.tif
     ```
+
+    If the server is configured to use a `SECRET-KEY` in its `server.cfg`, add the following parameter to the `curl` commands: `-H "X-API-Token: put_the_key_verbatim_here"`
     '''
     return segment_2d_tiff(tiff_image, do_normalization = True, method_name = method_name)
 
@@ -155,6 +162,8 @@ async def segment_2d_already_normalized_stream(stream_image: Annotated[bytes, Bo
     ```
     curl -X POST --data-binary @six_floats_test.dat -H "Content-Type: application/octet-stream"  http://127.0.0.1:8000/segmentation_2D/on_posted_stream_of/3/2/use/cellpose --output res_image_stream.dat
     ```
+
+    If the server is configured to use a `SECRET-KEY` in its `server.cfg`, add the following parameter to the `curl` commands: `-H "X-API-Token: put_the_key_verbatim_here"`
     '''
     return segment_2d_stream(stream_image, width, height, do_normalization = False, method_name = method_name)
 
@@ -176,6 +185,8 @@ async def segment_2d_plain_stream(stream_image: Annotated[bytes, Body(media_type
     ```
     curl -X POST --data-binary @six_floats_test.dat -H "Content-Type: application/octet-stream"  http://127.0.0.1:8000/segmentation_2D/on_posted_stream_of/3/2/normalize_it_then_use/cellpose --output res_image_stream.dat
     ```
+
+    If the server is configured to use a `SECRET-KEY` in its `server.cfg`, add the following parameter to the `curl` commands: `-H "X-API-Token: put_the_key_verbatim_here"`
     '''
     return segment_2d_stream(stream_image, width, height, do_normalization = True, method_name = method_name)
 
