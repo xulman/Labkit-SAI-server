@@ -79,7 +79,8 @@ Each folder contains:
   code lives in `segmentation-wrappers/`.
 
 Both servers share the `server-MODELS/` folder, and you can run both at once on
-different ports.
+different ports. The servers consult their own `server.cfg` files, and can thus
+be configured differently.
 
 **Adding a new environment** (e.g. for JAX or ONNX) means creating a new
 `server-<name>/` folder with its own `pixi.toml`, `server.py` and
