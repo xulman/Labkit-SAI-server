@@ -1,0 +1,4 @@
+# If the key is empty, N/A, NA, or NONE (case ignoring), the key is not required for the communication
+SECRET-KEY=NONE
+# The docs (swagger UI) are only shown if the provided value is 'YES'
+SHOW-DOCS=YES

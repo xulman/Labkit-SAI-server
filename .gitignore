@@ -21,5 +21,5 @@ venv.bak/
 *.model.pt
 *.pth
 
-# API access token
-secret.txt
+# server config (holds the API access key)
+server.cfg*

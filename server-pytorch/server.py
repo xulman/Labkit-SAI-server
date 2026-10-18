@@ -14,14 +14,20 @@ sys.path.append("../../images_loaders")
 import utils
 
 
-# --- token, read once at startup from secret.txt next to this script ---
-SECRET_FILE = Path(__file__).resolve().parent / "secret.txt"
+# --- config, read once at startup from server.cfg next to this script ---
+CONFIG_FILE = Path(__file__).resolve().parent / "server.cfg"
 try:
-    API_TOKEN = SECRET_FILE.read_text(encoding="utf-8").strip()
+    CONFIG = {k.strip().upper(): v.strip() for k, v in (line.split("=", 1)
+              for line in CONFIG_FILE.read_text(encoding="utf-8").splitlines()
+              if "=" in line and not line.lstrip().startswith("#"))}
 except FileNotFoundError:
-    sys.exit(f"Missing token file: {SECRET_FILE}")
-if not API_TOKEN:
-    sys.exit(f"Token file is empty: {SECRET_FILE}")
+    sys.exit(f"Missing config file: {CONFIG_FILE} (see server.cfg.example)")
+
+API_TOKEN = CONFIG.get("SECRET-KEY", "")
+if API_TOKEN.upper() in ("", "N/A", "NA", "NONE"):
+    API_TOKEN = None
+SHOW_DOCS = CONFIG.get("SHOW-DOCS", "").upper() == "YES"
+print(f"Server config: key {'REQUIRED' if API_TOKEN else 'not required'}, docs {'shown' if SHOW_DOCS else 'hidden'}")
 
 
 async def verify_token(x_api_token: Annotated[Optional[str], Header()] = None):
@@ -32,19 +38,18 @@ async def verify_token(x_api_token: Annotated[Optional[str], Header()] = None):
         raise HTTPException(status_code=404, detail="Not Found")
 ##
 ## Requires curl commands with:
-##      -H "X-API-Token: $(cat secret.txt)"
+##      -H "X-API-Token: $(sed -n 's/^SECRET-KEY=//p' server.cfg)"
 ##
-## (note the subshell `cat` so that the secret itself never appears in bash history)
+## (note the subshell `sed` so that the secret itself never appears in bash history)
 
 
 methods_folder = '../server-MODELS'
 methods = NETS.SegmentationMethods(methods_folder)
 
 app = FastAPI(
-    docs_url=None,       # no /docs (Swagger UI)
-    redoc_url=None,      # no /redoc
-    openapi_url=None,    # no /openapi.json -- the actual discovery source
-    dependencies=[Depends(verify_token)],  # applies to every route
+    # no /docs (Swagger UI), no /redoc, no /openapi.json (the actual discovery source)
+    **({} if SHOW_DOCS else dict(docs_url=None, redoc_url=None, openapi_url=None)),
+    dependencies=[Depends(verify_token)] if API_TOKEN else [],  # applies to every route
 )
 
 @app.get("/")
